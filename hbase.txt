@@ -1,0 +1,15 @@
+/usr/lib/jvm/java-11-openjdk-amd64/bin/javac
+readlink -f /usr/bin/javac
+sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64/bin/javac /usr/bin/javac
+
+
+javac -cp `hadoop classpath`:`hbase classpath`:'/HDFS_home/hbase/lib/hbase-server-2.3.5.jar':.: HFile.java
+sudo mv 'HFile$Reader.class' 'HFile$CachingBlockReader.class' 'HFile$Writer.class' 'HFile$WriterFactory.class'  HFile.class /HDFS_home/hbase/lib/hbase_server/org/apache/hadoop/hbase/io/hfile
+sudo jar cvf hbase-server-2.3.5.jar META-INF hbase-webapps org
+sudo mv hbase-server-2.3.5.jar /HDFS_home/hbase/lib
+for i in 3 5; do scp -r /HDFS_home/hbase/lib/* eternity$i:/HDFS_home/hbase/lib; done;
+./bin/ycsb load hbase2 -s -P workloads/workloadc -p recordcount=10000000 -cp ~/$HBASE_HOME/hbase/conf/ -p table=usertable -p columnfamily=family
+./bin/ycsb run hbase2 -s -P workloads/workloadc -p operationcount=100000 -cp ~/$HBASE_HOME/hbase/conf/ -p table=usertable -p columnfamily=family
+
+1. LOG 파일에 쓰기
+2. LRUBlockCache, Memstore, HFile 상관관계 알기
